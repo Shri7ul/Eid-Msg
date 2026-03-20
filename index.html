@@ -33,16 +33,16 @@ z-index:999;
 }
 
 .logo{
-font-size:32px;
-letter-spacing:6px;
+font-size:30px;
+letter-spacing:4px;
 color:#FFD700;
 animation:introAnim 3s ease forwards;
 }
 
 @keyframes introAnim{
-0%{opacity:0;transform:scale(1.4);filter:blur(10px)}
+0%{opacity:0;transform:scale(1.3);filter:blur(10px)}
 60%{opacity:1}
-100%{letter-spacing:4px}
+100%{letter-spacing:2px}
 }
 
 #intro.hide{
@@ -52,7 +52,7 @@ animation:fadeOut 1.2s forwards;
 to{opacity:0;visibility:hidden}
 }
 
-/* FLASH EFFECT */
+/* FLASH */
 .flash{
 position:fixed;
 width:100%;
@@ -82,9 +82,7 @@ padding:25px;
 transition:transform 1.2s ease;
 }
 
-.zoom{
-transform:scale(1.2);
-}
+.zoom{transform:scale(1.2);}
 
 /* TEXT */
 .title{
@@ -94,16 +92,45 @@ background:linear-gradient(#fff,#FFD700);
 -webkit-text-fill-color:transparent;
 }
 
-/* SHAKE */
-.shake{
-animation:shake 0.4s;
+/* LINES */
+.line{
+margin-top:12px;
+font-size:15px;
+opacity:0;
+animation:fadeUp 1s forwards;
 }
+
+.l1{animation-delay:.6s}
+.l2{animation-delay:1.2s}
+.l3{animation-delay:1.8s}
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(20px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+/* SCENE SWITCH */
+.fadeOut{
+animation:fadeOutScene .6s forwards;
+}
+.fadeIn{
+animation:fadeInScene .8s forwards;
+}
+
+@keyframes fadeOutScene{
+to{opacity:0;transform:translateY(-10px)}
+}
+
+@keyframes fadeInScene{
+from{opacity:0;transform:translateY(10px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+/* SHAKE */
+.shake{animation:shake .4s;}
 @keyframes shake{
-0%{transform:translateX(0)}
 25%{transform:translateX(-4px)}
 50%{transform:translateX(4px)}
-75%{transform:translateX(-4px)}
-100%{transform:translateX(0)}
 }
 
 /* BUTTON */
@@ -126,22 +153,6 @@ font-size:12px;
 opacity:.4;
 }
 
-.line{
-margin-top:12px;
-font-size:15px;
-opacity:0;
-animation:fadeUp 1s forwards;
-}
-
-.line:nth-child(2){animation-delay:.6s}
-.line:nth-child(3){animation-delay:1.2s}
-.line:nth-child(4){animation-delay:1.8s}
-
-@keyframes fadeUp{
-from{opacity:0;transform:translateY(20px)}
-to{opacity:1;transform:translateY(0)}
-};
-
 </style>
 </head>
 
@@ -157,11 +168,27 @@ to{opacity:1;transform:translateY(0)}
 
 <div id="content" style="display:none">
 
-<div class="title" id="title">Eid Mubarak 🌙</div>
-<div class="line">Not everything needs to be loud</div>
-<div class="line">Some feelings stay quiet…</div>
-<div class="line">But still mean everything ✨</div>
+<!-- SCENE 1 -->
+<div id="scene1">
 
+<div class="title" id="title">Eid Mubarak 🌙</div>
+
+<div class="line l1">Not everything needs to be loud</div>
+<div class="line l2">Some feelings stay quiet…</div>
+<div class="line l3">But still mean everything ✨</div>
+
+</div>
+
+<!-- SCENE 2 -->
+<div id="scene2" style="display:none">
+
+<div class="title">Some distances remain…</div>
+
+<div class="line l1">Some people stay in prayers 🤍</div>
+<div class="line l2">Not beside you… but still close</div>
+<div class="line l3">Eid feels softer this way 🌙</div>
+
+</div>
 
 <button class="btn" onclick="play()">Tap to feel 🎧</button>
 
@@ -171,45 +198,62 @@ to{opacity:1;transform:translateY(0)}
 
 </div>
 
-<audio id="music" preload="auto">
-<source src="./eid.mp3" type="audio/mpeg">
-</audio>
+<audio id="music" src="./eid.mp3" preload="auto"></audio>
 
 <script>
 
 /* INTRO */
 setTimeout(()=>{
-intro.classList.add("hide");
-content.style.display="block";
+document.getElementById("intro").classList.add("hide");
+document.getElementById("content").style.display="block";
 },3000);
 
-/* PLAY FUNCTION */
+/* PLAY */
 function play(){
 
-let audio=document.getElementById("music");
+const audio = document.getElementById("music");
+const flash = document.getElementById("flash");
+const phone = document.getElementById("phone");
+const title = document.getElementById("title");
 
-/* ===== FLASH ===== */
-let flash=document.getElementById("flash");
-flash.style.opacity=1;
-setTimeout(()=>flash.style.opacity=0,300);
+/* FLASH */
+if(flash){
+flash.style.opacity = 1;
+setTimeout(()=>flash.style.opacity = 0, 300);
+}
 
-/* ===== ZOOM ===== */
-document.getElementById("phone").classList.add("zoom");
+/* ZOOM */
+if(phone){
+phone.classList.add("zoom");
+}
 
-/* ===== SHAKE ===== */
-let title=document.getElementById("title");
+/* SHAKE */
+if(title){
 title.classList.add("shake");
 setTimeout(()=>title.classList.remove("shake"),400);
+}
 
-/* ===== AUDIO FIX ===== */
+/* AUDIO (ULTRA SAFE) */
+audio.pause();
 audio.currentTime = 0;
 
-let playPromise = audio.play();
-
-if(playPromise !== undefined){
-playPromise.catch(err=>{
-console.log("Autoplay blocked:",err);
+audio.play().catch(()=>{
+let clone = audio.cloneNode(true);
+clone.play();
 });
+
+/* SCENE SWITCH */
+const s1 = document.getElementById("scene1");
+const s2 = document.getElementById("scene2");
+
+if(s1 && s2){
+s1.classList.add("fadeOut");
+
+setTimeout(()=>{
+s1.style.display="none";
+s2.style.display="block";
+s2.classList.add("fadeIn");
+},600);
 }
 
 }
